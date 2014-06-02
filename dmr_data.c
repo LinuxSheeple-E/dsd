@@ -16,12 +16,13 @@
  */
 
 #include "dsd.h"
+#include "dmr.h"
 
 void
 processDMRdata (dsd_opts * opts, dsd_state * state)
 {
 
-  int i, dibit;
+  int i, j, dibit;
   int *dibit_p;
   char sync[25];
   char syncdata[25];
@@ -50,24 +51,6 @@ processDMRdata (dsd_opts * opts, dsd_state * state)
           dibit = (dibit ^ 2);
         }
       cachdata[i] = dibit;
-      if (i == 2)
-        {
-          state->currentslot = (1 & (dibit >> 1));      // bit 1
-          if (state->currentslot == 0)
-            {
-              state->slot0light[0] = '[';
-              state->slot0light[6] = ']';
-              state->slot1light[0] = ' ';
-              state->slot1light[6] = ' ';
-            }
-          else
-            {
-              state->slot1light[0] = '[';
-              state->slot1light[6] = ']';
-              state->slot0light[0] = ' ';
-              state->slot0light[6] = ' ';
-            }
-        }
     }
   cachdata[12] = 0;
 
@@ -84,7 +67,8 @@ processDMRdata (dsd_opts * opts, dsd_state * state)
   cachbits[24] = 0;
   printf ("%s ", cachbits);
 #endif
-
+  
+  processCach (opts, state, cachdata);
   // current slot
   dibit_p += 49;
 
@@ -221,6 +205,8 @@ processDMRdata (dsd_opts * opts, dsd_state * state)
   if (opts->errorbars == 1)
     {
       printf ("%s %s ", state->slot0light, state->slot1light);
+      printf(" %-26s ", getSlcoString());
+
     }
 
   // current slot second half, cach, next slot 1st half

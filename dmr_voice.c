@@ -17,6 +17,7 @@
 
 #include "dsd.h"
 #include "dmr_const.h"
+#include "dmr.h"
 
 void
 processDMRvoice (dsd_opts * opts, dsd_state * state)
@@ -81,24 +82,6 @@ processDMRvoice (dsd_opts * opts, dsd_state * state)
                 }
             }
           cachdata[i] = dibit;
-          if (i == 2)
-            {
-              state->currentslot = (1 & (dibit >> 1));  // bit 1
-              if (state->currentslot == 0)
-                {
-                  state->slot0light[0] = '[';
-                  state->slot0light[6] = ']';
-                  state->slot1light[0] = ' ';
-                  state->slot1light[6] = ' ';
-                }
-              else
-                {
-                  state->slot1light[0] = '[';
-                  state->slot1light[6] = ']';
-                  state->slot0light[0] = ' ';
-                  state->slot0light[6] = ' ';
-                }
-            }
         }
       cachdata[12] = 0;
 
@@ -117,6 +100,7 @@ processDMRvoice (dsd_opts * opts, dsd_state * state)
       printf ("%s ", cachbits);
 #endif
 
+      processCach (opts, state, cachdata);
       // current slot frame 1
       w = rW;
       x = rX;
@@ -226,7 +210,7 @@ processDMRvoice (dsd_opts * opts, dsd_state * state)
 
       if ((j == 0) && (opts->errorbars == 1))
         {
-          printf ("%s %s  VOICE e:", state->slot0light, state->slot1light);
+          printf ("%s %s  %-26s  VOICE e:", state->slot0light, state->slot1light, getSlcoString());
         }
 
 #ifdef DMR_DUMP
@@ -310,6 +294,7 @@ processDMRvoice (dsd_opts * opts, dsd_state * state)
       printf ("%s ", cachbits);
 #endif
 
+      processCach (opts, state, cachdata);
 
       // next slot
       skipDibit (opts, state, 54);
