@@ -514,7 +514,8 @@ getFrameSync (dsd_opts * opts, dsd_state * state)
           if ((opts->frame_nxdn96 == 1) || (opts->frame_nxdn48 == 1))
             {
               strncpy (synctest18, (synctest_p - 17), 18);
-              if ((strcmp (synctest18, NXDN_BS_VOICE_SYNC) == 0) || (strcmp (synctest18, NXDN_MS_VOICE_SYNC) == 0))
+              if ((strcmp (synctest18, NXDN_BS_VOICE_SYNC) == 0) || (strcmp (synctest18, NXDN_MS_VOICE_SYNC) == 0) ||
+                  (strcmp (synctest18, NXDN_TC_VOICE_SYNC) == 0) || (strcmp (synctest18, NXDN_TD_VOICE_SYNC) == 0))
                 {
                   if ((state->lastsynctype == 8) || (state->lastsynctype == 16))
                     {
@@ -546,7 +547,8 @@ getFrameSync (dsd_opts * opts, dsd_state * state)
                       state->lastsynctype = 8;
                     }
                 }
-              else if ((strcmp (synctest18, INV_NXDN_BS_VOICE_SYNC) == 0) || (strcmp (synctest18, INV_NXDN_MS_VOICE_SYNC) == 0))
+              else if ((strcmp (synctest18, INV_NXDN_BS_VOICE_SYNC) == 0) || (strcmp (synctest18, INV_NXDN_MS_VOICE_SYNC) == 0)  ||
+                       (strcmp (synctest18, INV_NXDN_TC_VOICE_SYNC) == 0) || (strcmp (synctest18, INV_NXDN_TD_VOICE_SYNC) == 0))
                 {
                   if ((state->lastsynctype == 9) || (state->lastsynctype == 17))
                     {
@@ -578,7 +580,8 @@ getFrameSync (dsd_opts * opts, dsd_state * state)
                       state->lastsynctype = 9;
                     }
                 }
-              else if ((strcmp (synctest18, NXDN_BS_DATA_SYNC) == 0) || (strcmp (synctest18, NXDN_MS_DATA_SYNC) == 0))
+              else if ((strcmp (synctest18, NXDN_BS_DATA_SYNC) == 0) || (strcmp (synctest18, NXDN_MS_DATA_SYNC) == 0)  ||
+                       (strcmp (synctest18, NXDN_TC_CC_SYNC) == 0) || (strcmp (synctest18, NXDN_TD_CC_SYNC) == 0))
                 {
                   if ((state->lastsynctype == 8) || (state->lastsynctype == 16))
                     {
@@ -610,7 +613,8 @@ getFrameSync (dsd_opts * opts, dsd_state * state)
                       state->lastsynctype = 16;
                     }
                 }
-              else if ((strcmp (synctest18, INV_NXDN_BS_DATA_SYNC) == 0) || (strcmp (synctest18, INV_NXDN_MS_DATA_SYNC) == 0))
+              else if ((strcmp (synctest18, INV_NXDN_BS_DATA_SYNC) == 0) || (strcmp (synctest18, INV_NXDN_MS_DATA_SYNC) == 0)  ||
+                       (strcmp (synctest18, INV_NXDN_TC_CC_SYNC) == 0) || (strcmp (synctest18, INV_NXDN_TD_CC_SYNC) == 0))
                 {
                   if ((state->lastsynctype == 9) || (state->lastsynctype == 17))
                     {

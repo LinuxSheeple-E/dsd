@@ -20,7 +20,11 @@ void processCach (dsd_opts * opts, dsd_state * state, char cachdata[13]);
 // DMR SLCO
 void processSlco(short opcode, long data);
 char *getSlcoString();
-
+// DMR EMB Processing
+void processEmb (dsd_opts * opts, dsd_state * state, char syncdata[25]);
+// DMR FLCO
+void processFlco( char pf, char flco[7], char fid[9], char payload[97]);
+char *getFlcoString();
 // DMR Error Correction
 long doGolay208(char bitarray[20]);
 int doHamming743(char bitarray[7]);

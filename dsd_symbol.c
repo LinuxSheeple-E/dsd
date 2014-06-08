@@ -102,10 +102,33 @@ getSymbol (dsd_opts * opts, dsd_state * state, int have_sync)
       if (opts->use_cosine_filter)
         {
           if (state->lastsynctype >= 10 && state->lastsynctype <= 13)
+            {
               sample = dmr_filter(sample);
+              allpass_filter (sample);
+              nxdn_filter(sample);
+            }
           else if (state->lastsynctype == 8 || state->lastsynctype == 9 ||
                  state->lastsynctype == 16 || state->lastsynctype == 17)
-              sample = nxdn_filter(sample);
+            {
+              if(state->samplesPerSymbol == 20)
+                {
+                  sample = nxdn_filter(sample);
+                  allpass_filter (sample);
+                  dmr_filter(sample);
+                }
+              else
+                {
+                  sample = dmr_filter(sample);
+                  allpass_filter (sample);
+                  nxdn_filter(sample);
+                }
+            }
+          else
+            {
+              sample = allpass_filter (sample);
+              dmr_filter(sample);
+              nxdn_filter(sample);
+            }
         }
 
       if ((sample > state->max) && (have_sync == 1) && (state->rf_mod == 0))

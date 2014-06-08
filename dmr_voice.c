@@ -25,6 +25,7 @@ processDMRvoice (dsd_opts * opts, dsd_state * state)
   // extracts AMBE frames from DMR frame
   int i, j, dibit;
   int *dibit_p;
+  char *cptr;
   char ambe_fr[4][24];
   char ambe_fr2[4][24];
   char ambe_fr3[4][24];
@@ -178,6 +179,10 @@ processDMRvoice (dsd_opts * opts, dsd_state * state)
         }
       sync[24] = 0;
       syncdata[24] = 0;
+      if(j > 0) // Non-Sync part of the superframe
+      {
+	processEmb (opts, state, syncdata);
+      }
 
       if ((strcmp (sync, DMR_BS_DATA_SYNC) == 0) || (strcmp (sync, DMR_MS_DATA_SYNC) == 0))
         {
@@ -210,7 +215,7 @@ processDMRvoice (dsd_opts * opts, dsd_state * state)
 
       if ((j == 0) && (opts->errorbars == 1))
         {
-          printf ("%s %s  %-26s  VOICE e:", state->slot0light, state->slot1light, getSlcoString());
+          printf ("%s %s  VOICE e:", state->slot0light, state->slot1light);
         }
 
 #ifdef DMR_DUMP
@@ -362,6 +367,16 @@ processDMRvoice (dsd_opts * opts, dsd_state * state)
   if (opts->errorbars == 1)
     {
       printf ("\n");
+      cptr = getSlcoString();
+      if(strlen(cptr) > 0)
+	{
+	  printf("  CACH: %s \n", cptr);
+	}
+      cptr = getFlcoString();
+      if(strlen(cptr) > 0)
+	{
+	  printf("  EMB: %s \n", cptr);
+	}
     }
 
 }

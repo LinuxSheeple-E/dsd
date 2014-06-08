@@ -226,6 +226,7 @@ typedef struct
 #define DSTAR_SYNC     "313131313133131113313111"
 #define INV_DSTAR_SYNC "131313131311313331131333"
 
+// Conventional
 #define NXDN_MS_DATA_SYNC      "313133113131111333"
 #define INV_NXDN_MS_DATA_SYNC  "131311331313333111"
 #define NXDN_MS_VOICE_SYNC     "313133113131113133"
@@ -234,6 +235,15 @@ typedef struct
 #define NXDN_BS_DATA_SYNC      "313133113131111313"
 #define INV_NXDN_BS_VOICE_SYNC "131311331313331331"
 #define NXDN_BS_VOICE_SYNC     "313133113131113113"
+// Trunked
+#define NXDN_TC_VOICE_SYNC     "313133113113113113"
+#define INV_NXDN_TC_VOICE_SYNC "131311331331331331"
+#define NXDN_TD_VOICE_SYNC     "313133113133113111"
+#define INV_NXDN_TD_VOICE_SYNC "131311331311331333"
+#define INV_NXDN_TC_CC_SYNC "131311331333133131"
+#define NXDN_TC_CC_SYNC     "313133113111311313"
+#define INV_NXDN_TD_CC_SYNC "131311331311133331"
+#define NXDN_TD_CC_SYNC     "313133113133311113"
 
 #define DMR_BS_DATA_SYNC  "313333111331131131331131"
 #define DMR_BS_VOICE_SYNC "131111333113313313113313"
@@ -303,5 +313,6 @@ void processX2TDMAvoice (dsd_opts * opts, dsd_state * state);
 void processDSTAR_HD (dsd_opts * opts, dsd_state * state);
 short dmr_filter(short sample);
 short nxdn_filter(short sample);
+short allpass_filter(short sample);
 
 #endif // DSD_H

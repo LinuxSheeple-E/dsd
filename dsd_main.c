@@ -413,7 +413,7 @@ main (int argc, char **argv)
   exitflag = 0;
   signal (SIGINT, sigfun);
 
-  while ((c = getopt (argc, argv, "hep:qstv:z:i:o:d:g:nw:B:C:R:f:m:u:x:A:S:M:rl:")) != -1)
+  while ((c = getopt (argc, argv, "hep:qstv:z:i:o:d:g:nw:B:C:R:f:m:u:x:A:S:M:rl")) != -1)
     {
       opterr = 0;
       switch (c)
@@ -604,12 +604,12 @@ main (int argc, char **argv)
               opts.frame_provoice = 0;
               state.samplesPerSymbol = 20;
               state.symbolCenter = 10;
-              opts.mod_c4fm = 0;
+              opts.mod_c4fm = 1;
               opts.mod_qpsk = 0;
-              opts.mod_gfsk = 1;
-              state.rf_mod = 2;
+              opts.mod_gfsk = 0;
+              state.rf_mod = 0;
               printf ("Setting symbol rate to 2400 / second\n");
-              printf ("Enabling only GFSK modulation optimizations.\n");
+              printf ("Enabling only C4FM modulation optimizations.\n");
               printf ("Decoding only NXDN 4800 baud frames.\n");
             }
           else if (optarg[0] == 'n')
@@ -621,11 +621,11 @@ main (int argc, char **argv)
               opts.frame_nxdn96 = 1;
               opts.frame_dmr = 0;
               opts.frame_provoice = 0;
-              opts.mod_c4fm = 0;
+              opts.mod_c4fm = 1;
               opts.mod_qpsk = 0;
-              opts.mod_gfsk = 1;
-              state.rf_mod = 2;
-              printf ("Enabling only GFSK modulation optimizations.\n");
+              opts.mod_gfsk = 0;
+              state.rf_mod = 0;
+              printf ("Enabling only C4FM modulation optimizations.\n");
               printf ("Decoding only NXDN 9600 baud frames.\n");
             }
           else if (optarg[0] == 'r')
@@ -637,6 +637,11 @@ main (int argc, char **argv)
               opts.frame_nxdn96 = 0;
               opts.frame_dmr = 1;
               opts.frame_provoice = 0;
+              opts.mod_c4fm = 1;
+              opts.mod_qpsk = 0;
+              opts.mod_gfsk = 0;
+              state.rf_mod = 0;
+              printf ("Enabling only C4FM modulation optimizations.\n");
               printf ("Decoding only DMR/MOTOTRBO frames.\n");
             }
           break;

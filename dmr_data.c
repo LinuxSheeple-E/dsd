@@ -24,10 +24,14 @@ processDMRdata (dsd_opts * opts, dsd_state * state)
 
   int i, j, dibit;
   int *dibit_p;
+  char *cptr;
   char sync[25];
   char syncdata[25];
   char cachdata[13];
-  char cc[5];
+  char slottype[20];
+  int  errorflag;
+
+  char cc;
   char bursttype[5];
 
 #ifdef DMR_DUMP
@@ -36,7 +40,7 @@ processDMRdata (dsd_opts * opts, dsd_state * state)
   char cachbits[25];
 #endif
 
-  cc[4] = 0;
+  cc = 0;
   bursttype[4] = 0;
 
   dibit_p = state->dibit_buf_p - 90;
@@ -73,94 +77,17 @@ processDMRdata (dsd_opts * opts, dsd_state * state)
   dibit_p += 49;
 
   // slot type
-  dibit = *dibit_p;
-  dibit_p++;
-  if (opts->inverted_dmr == 1)
+  for (i = 0; i < 10; i += 2)
     {
-      dibit = (dibit ^ 2);
+      dibit = *dibit_p;
+      dibit_p++;
+      if (opts->inverted_dmr == 1)
+        {
+          dibit = (dibit ^ 2);
+        }
+      slottype[i] = (1 & (dibit >> 1)) + 48; // bit 1
+      slottype[i+1] = (1 & dibit) + 48;        // bit 0
     }
-  cc[0] = (1 & (dibit >> 1)) + 48;      // bit 1
-  cc[1] = (1 & dibit) + 48;     // bit 0
-
-  dibit = *dibit_p;
-  dibit_p++;
-  if (opts->inverted_dmr == 1)
-    {
-      dibit = (dibit ^ 2);
-    }
-  cc[2] = (1 & (dibit >> 1)) + 48;      // bit 1
-  cc[3] = (1 & dibit) + 48;     // bit 0
-
-  dibit = *dibit_p;
-  dibit_p++;
-  if (opts->inverted_dmr == 1)
-    {
-      dibit = (dibit ^ 2);
-    }
-  bursttype[0] = (1 & (dibit >> 1)) + 48;       // bit 1
-  bursttype[1] = (1 & dibit) + 48;      // bit 0
-
-  dibit = *dibit_p;
-  dibit_p++;
-  if (opts->inverted_dmr == 1)
-    {
-      dibit = (dibit ^ 2);
-    }
-  bursttype[2] = (1 & (dibit >> 1)) + 48;       // bit 1
-  bursttype[3] = (1 & dibit) + 48;      // bit 0
-
-  // parity bit
-  dibit_p++;
-
-  if (strcmp (bursttype, "0000") == 0)
-    {
-      sprintf (state->fsubtype, " PI Header    ");
-    }
-  else if (strcmp (bursttype, "0001") == 0)
-    {
-      sprintf (state->fsubtype, " VOICE Header ");
-    }
-  else if (strcmp (bursttype, "0010") == 0)
-    {
-      sprintf (state->fsubtype, " TLC          ");
-    }
-  else if (strcmp (bursttype, "0011") == 0)
-    {
-      sprintf (state->fsubtype, " CSBK         ");
-    }
-  else if (strcmp (bursttype, "0100") == 0)
-    {
-      sprintf (state->fsubtype, " MBC Header   ");
-    }
-  else if (strcmp (bursttype, "0101") == 0)
-    {
-      sprintf (state->fsubtype, " MBC          ");
-    }
-  else if (strcmp (bursttype, "0110") == 0)
-    {
-      sprintf (state->fsubtype, " DATA Header  ");
-    }
-  else if (strcmp (bursttype, "0111") == 0)
-    {
-      sprintf (state->fsubtype, " RATE 1/2 DATA");
-    }
-  else if (strcmp (bursttype, "1000") == 0)
-    {
-      sprintf (state->fsubtype, " RATE 3/4 DATA");
-    }
-  else if (strcmp (bursttype, "1001") == 0)
-    {
-      sprintf (state->fsubtype, " Slot idle    ");
-    }
-  else if (strcmp (bursttype, "1010") == 0)
-    {
-      sprintf (state->fsubtype, " Rate 1 DATA  ");
-    }
-  else
-    {
-      sprintf (state->fsubtype, "              ");
-    }
-
   // signaling data or sync
   for (i = 0; i < 24; i++)
     {
@@ -205,22 +132,96 @@ processDMRdata (dsd_opts * opts, dsd_state * state)
   if (opts->errorbars == 1)
     {
       printf ("%s %s ", state->slot0light, state->slot1light);
-      printf(" %-26s ", getSlcoString());
-
     }
 
+// current frame - second half
+  for (i = 10; i < 20; i += 2)
+    {
+      dibit = getDibit (opts, state);
+      slottype[i] = (1 & (dibit >> 1)) + 48; // bit 1
+      slottype[i+1] = (1 & dibit) + 48;        // bit 0
+    }
+  sprintf (state->fsubtype, "              ");
+  if((errorflag = doGolay208(slottype)) == 0)
+    {
+      cc = 0;
+      for(i = 0; i < 4; i++)
+	{
+	  cc <<= 1;
+	  cc |= (slottype[i] - 48);
+	  bursttype[i] = slottype[i+4];
+	}
+      if (strcmp (bursttype, "0000") == 0)
+	{
+	  sprintf (state->fsubtype, " PI Header    ");
+	}
+      else if (strcmp (bursttype, "0001") == 0)
+	{
+	  sprintf (state->fsubtype, " VOICE Header ");
+	}
+      else if (strcmp (bursttype, "0010") == 0)
+	{
+	  sprintf (state->fsubtype, " TLC          ");
+	}
+      else if (strcmp (bursttype, "0011") == 0)
+	{
+	  sprintf (state->fsubtype, " CSBK         ");
+	}
+      else if (strcmp (bursttype, "0100") == 0)
+	{
+	  sprintf (state->fsubtype, " MBC Header   ");
+	}
+      else if (strcmp (bursttype, "0101") == 0)
+	{
+	  sprintf (state->fsubtype, " MBC          ");
+	}
+      else if (strcmp (bursttype, "0110") == 0)
+	{
+	  sprintf (state->fsubtype, " DATA Header  ");
+	}
+      else if (strcmp (bursttype, "0111") == 0)
+	{
+	  sprintf (state->fsubtype, " RATE 1/2 DATA");
+	}
+      else if (strcmp (bursttype, "1000") == 0)
+	{
+	  sprintf (state->fsubtype, " RATE 3/4 DATA");
+	}
+      else if (strcmp (bursttype, "1001") == 0)
+	{
+	  sprintf (state->fsubtype, " Slot idle    ");
+	}
+      else if (strcmp (bursttype, "1010") == 0)
+	{
+	  sprintf (state->fsubtype, " Rate 1 DATA  ");
+	}
+      else
+	{
+	  sprintf (state->fsubtype, "              ");
+	}
+    }
+      
   // current slot second half, cach, next slot 1st half
-  skipDibit (opts, state, 120);
+  skipDibit (opts, state, 115);
 
   if (opts->errorbars == 1)
     {
-      if (strcmp (state->fsubtype, "              ") == 0)
+      if (errorflag)
         {
-          printf (" Unknown burst type: %s\n", bursttype);
+	  printf(" Slot Type Error %d\n", errorflag);
+	}
+      else if (strcmp (state->fsubtype, "              ") == 0)
+        {
+          printf (" CC:%2d  Unknown burst type: %s\n", (int)cc, bursttype);
         }
       else
         {
-          printf ("%s\n", state->fsubtype);
+          printf (" CC:%2d %s\n", (int)cc, state->fsubtype);
         }
+      cptr = getSlcoString();
+      if(strlen(cptr) > 0)
+	{
+	  printf("  CACH: %s \n", cptr);
+	}
     }
 }
