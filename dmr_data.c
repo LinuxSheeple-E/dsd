@@ -29,6 +29,13 @@ processDMRdata (dsd_opts * opts, dsd_state * state)
   char syncdata[25];
   char cachdata[13];
   char slottype[20];
+  char infodata[197];
+  char payload[97];
+  char lb;
+  char pf;
+  char flco[7];
+  char csbk[7];
+  char fid[9];
   int  errorflag;
 
   char cc;
@@ -73,8 +80,19 @@ processDMRdata (dsd_opts * opts, dsd_state * state)
 #endif
   
   processCach (opts, state, cachdata);
+
   // current slot
-  dibit_p += 49;
+  for (i = 0; i < 98; i += 2)
+    {
+      dibit = *dibit_p;
+      dibit_p++;
+      if (opts->inverted_dmr == 1)
+        {
+          dibit = (dibit ^ 2);
+        }
+      infodata[i] = (1 & (dibit >> 1)); // bit 1
+      infodata[i+1] = (1 & dibit);        // bit 0
+    }
 
   // slot type
   for (i = 0; i < 10; i += 2)
@@ -141,6 +159,13 @@ processDMRdata (dsd_opts * opts, dsd_state * state)
       slottype[i] = (1 & (dibit >> 1)) + 48; // bit 1
       slottype[i+1] = (1 & dibit) + 48;        // bit 0
     }
+  for (i = 98; i < 196; i += 2)
+    {
+      dibit = getDibit (opts, state);
+      infodata[i] = (1 & (dibit >> 1)); // bit 1
+      infodata[i+1] = (1 & dibit);        // bit 0
+    }
+
   sprintf (state->fsubtype, "              ");
   if((errorflag = doGolay208(slottype)) == 0)
     {
@@ -158,14 +183,88 @@ processDMRdata (dsd_opts * opts, dsd_state * state)
       else if (strcmp (bursttype, "0001") == 0)
 	{
 	  sprintf (state->fsubtype, " VOICE Header ");
+      if(processBPTC(opts, state, infodata, payload) == 0)
+      {
+        pf = payload[0] + 48;
+        for (i = 0; i < 6; i++)
+        {
+          flco[i] = payload[2+i] + 48;
+        }
+        flco[6] = '\0';
+        for (i = 0; i < 8; i++)
+        {
+          fid[i] = payload[8+i] + 48;
+        }
+        fid[8] = '\0';
+        for (i = 0; i < 56; i++)
+        {
+          payload[i] = payload[16+i] + 48;
+        }
+        payload[56] = '\0';
+        processFlco(pf, flco, fid, payload );
+      }
+      
 	}
       else if (strcmp (bursttype, "0010") == 0)
 	{
 	  sprintf (state->fsubtype, " TLC          ");
+      if(processBPTC(opts, state, infodata, payload) == 0)
+      {
+        pf = payload[0] + 48;
+        for (i = 0; i < 6; i++)
+        {
+          flco[i] = payload[2+i] + 48;
+        }
+        flco[6] = '\0';
+        for (i = 0; i < 8; i++)
+        {
+          fid[i] = payload[8+i] + 48;
+        }
+        fid[8] = '\0';
+        for (i = 0; i < 56; i++)
+        {
+          payload[i] = payload[16+i] + 48;
+        }
+        payload[56] = '\0';
+        processFlco(pf, flco, fid, payload );
+      }
 	}
       else if (strcmp (bursttype, "0011") == 0)
 	{
 	  sprintf (state->fsubtype, " CSBK         ");
+      if(processBPTC(opts, state, infodata, payload) == 0)
+      {
+        initCRC16();
+        char crc_mask[16] = {1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1};
+        for (i = 0; i < 16; i++)
+        {
+          payload[80+i] ^= crc_mask[i];
+        }
+        for(i = 0; i < 96; i++)
+          doCRC16(payload[i]);
+        if(getCRC16() == 0x1d0f)
+        {
+          lb = payload[0] + 48;
+        
+          pf = payload[1] + 48;
+          for (i = 0; i < 6; i++)
+          {
+            csbk[i] = payload[2+i] + 48;
+          }
+          csbk[6] = '\0';
+          for (i = 0; i < 8; i++)
+          {
+            fid[i] = payload[8+i] + 48;
+          }
+          fid[8] = '\0';
+          for (i = 0; i < 80; i++)
+          {
+            payload[i] = payload[16+i] + 48;
+          }
+          payload[80] = '\0';
+          processCsbk(lb, pf, csbk, fid, payload );
+      }
+    }
 	}
       else if (strcmp (bursttype, "0100") == 0)
 	{
@@ -201,8 +300,8 @@ processDMRdata (dsd_opts * opts, dsd_state * state)
 	}
     }
       
-  // current slot second half, cach, next slot 1st half
-  skipDibit (opts, state, 115);
+  // cach, next slot 1st half
+  skipDibit (opts, state, 66);
 
   if (opts->errorbars == 1)
     {
@@ -214,9 +313,9 @@ processDMRdata (dsd_opts * opts, dsd_state * state)
         {
           printf (" CC:%2d  Unknown burst type: %s\n", (int)cc, bursttype);
         }
-      else
+      else 
         {
-          printf (" CC:%2d %s\n", (int)cc, state->fsubtype);
+          printf (" CC:%2d %s %s%s\n", (int)cc, state->fsubtype, getCsbkString(), getFlcoString());
         }
       cptr = getSlcoString();
       if(strlen(cptr) > 0)

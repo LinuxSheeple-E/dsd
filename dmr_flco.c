@@ -15,7 +15,6 @@
  */
 
 #include "dsd.h"
-#include "dmr_const.h"
 #include "dmr.h"
 
 static char flco_string[133];
@@ -29,83 +28,221 @@ void processFlco( char pf, char flco[7], char fid[9], char payload[97] )
   long long ll;
   char tmpStr[81];
   flco_str_valid = 0;
-  if ((strcmp (flco, "000000") == 0) && (strcmp (fid, "00000000") == 0))
+  if (strcmp (fid, "00000000") == 0) // Standard feature
     {
-		sprintf(flco_string, "pf:%c Group Voice Ch Usr ", pf);
-		if(payload[0] == '1')
-			strcat(flco_string, "EMERGENCY ");
-		if(payload[1] == '1')
-			strcat(flco_string, "Privacy ");
-		// skip two reserved 
-		if(payload[4] == '1')
+      sprintf(flco_string, "pf:%c Standard - ", pf);
+      if (strcmp (flco, "000000") == 0)
+        {
+          strcat(flco_string, "Group Voice Ch Usr ");
+          if(payload[0] == '1')
+            strcat(flco_string, "EMERGENCY ");
+          if(payload[1] == '1')
+            strcat(flco_string, "Privacy ");
+          // skip two reserved 
+          if(payload[4] == '1')
 			strcat(flco_string, "Broadcast ");
-		if(payload[5] == '1')
+          if(payload[5] == '1')
 			strcat(flco_string, "OVCM ");
-        if(payload[6] == '1' && payload[7] == '1')
+          if(payload[6] == '1' && payload[7] == '1')
             strcat(flco_string, "Priority:3 ");
-        else if(payload[6] == '1')
+          else if(payload[6] == '1')
             strcat(flco_string, "Priority:2 ");
-        else if(payload[7] == '1')
+          else if(payload[7] == '1')
             strcat(flco_string, "Priority:1 ");
-        else
-            strcat(flco_string, "Priority:0 ");
-		l = 0;
-		for(i = 8; i < 32; i++)
+          l = 0;
+          for(i = 8; i < 32; i++)
 	        {
-		    l <<= 1;
-		    l |= (payload[i] == '1')?1:0;
-		}
-		sprintf(tmpStr, "Group:%ld ", l);
-		strcat(flco_string, tmpStr);
-		l = 0;
-		for(i = 32; i < 56; i++)
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "Group:%ld ", l);
+          strcat(flco_string, tmpStr);
+          l = 0;
+          for(i = 32; i < 56; i++)
 	        {
-		    l <<= 1;
-		    l |= (payload[i] == '1')?1:0;
-		}
-		sprintf(tmpStr, "RadioId:%ld ", l);
-		strcat(flco_string, tmpStr);
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "RadioId:%ld ", l);
+          strcat(flco_string, tmpStr);
+        }
+      else if (strcmp (flco, "000011") == 0)
+        {
+          strcat(flco_string, "Unit-Unit Voice Ch Usr ");
+          if(payload[0] == '1')
+			strcat(flco_string, "EMERGENCY ");
+          if(payload[1] == '1')
+			strcat(flco_string, "Privacy ");
+          // skip two reserved 
+          if(payload[4] == '1')
+			strcat(flco_string, "Broadcast ");
+          if(payload[5] == '1')
+			strcat(flco_string, "OVCM ");
+          if(payload[6] == '1' && payload[7] == '1')
+            strcat(flco_string, "Priority:3 ");
+          else if(payload[6] == '1')
+            strcat(flco_string, "Priority:2 ");
+          else if(payload[7] == '1')
+            strcat(flco_string, "Priority:1 ");
+          l = 0;
+          for(i = 8; i < 32; i++)
+	        {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "DestId:%ld ", l);
+          strcat(flco_string, tmpStr);
+          l = 0;
+          for(i = 32; i < 56; i++)
+	        {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "SourceId:%ld ", l);
+          strcat(flco_string, tmpStr);
+        }
+      else if (strcmp (flco, "110000") == 0)
+        {
+          strcat(flco_string, "Terminator Data LC ");
+          l = 0;
+          for(i = 0; i < 24; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "%s:%06lX ",(payload[48] == '1')?"Grp":"DestID", l);
+          strcat(flco_string, tmpStr);
+          l = 0;
+          for(i = 24; i < 48; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "SrcId:%06lX %c %s %c ", l, (payload[49] == '1')?'A':' ', (payload[50] == '1')?"FMF":"   ", (payload[52] == '1')?'S':' ');
+          strcat(flco_string, tmpStr);
+          l = 0;
+          for(i = 53; i < 56; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "N(S):%ld ", l);
+          strcat(flco_string, tmpStr);
+        }
+      else
+      {
+        ll = 0LL;
+        j = 0;
+        for(i = 0; i < 64; i++)
+          {
+            ll <<= 1;
+            ll |= (payload[i] == '1')?1:0;
+          }
+        for(i = 64; i < 80; i++)
+          {
+            j <<= 1;
+            j |= (payload[i] == '1')?1:0;
+          }
+        sprintf(tmpStr, "flco:%s fid:%s payload:0x%016llX%04X", flco, fid, ll, j);
+        strcat(flco_string, tmpStr);
+      }
     }
-  else if ((strcmp (flco, "000011") == 0) && (strcmp (fid, "00000000") == 0))
-	  {
-		sprintf(flco_string, "pf:%c Unit-Unit Voice Ch Usr ", pf);
-		if(payload[0] == '1')
-			strcat(flco_string, "EMERGENCY ");
-		if(payload[1] == '1')
-			strcat(flco_string, "Privacy ");
-		// skip two reserved 
-		if(payload[4] == '1')
-			strcat(flco_string, "Broadcast ");
-		if(payload[5] == '1')
-			strcat(flco_string, "OVCM ");
-        if(payload[6] == '1' && payload[7] == '1')
-            strcat(flco_string, "Priority:3 ");
-        else if(payload[6] == '1')
-            strcat(flco_string, "Priority:2 ");
-        else if(payload[7] == '1')
-            strcat(flco_string, "Priority:1 ");
-        else
-            strcat(flco_string, "Priority:0 ");
-		l = 0;
-		for(i = 8; i < 32; i++)
-	        {
-		    l <<= 1;
-		    l |= (payload[i] == '1')?1:0;
-		}
-		sprintf(tmpStr, "DestId:%ld ", l);
-		strcat(flco_string, tmpStr);
-		l = 0;
-		for(i = 32; i < 56; i++)
-	        {
-		    l <<= 1;
-		    l |= (payload[i] == '1')?1:0;
-		}
-		sprintf(tmpStr, "SourceId:%ld ", l);
-		strcat(flco_string, tmpStr);
-	  }
-    else if ((strcmp (flco, "000100") == 0) && (strcmp (fid, "00010000") == 0))
-	  {
-		sprintf(flco_string, "Mototurbo Capacity+ ");
+  else if (strcmp (fid, "00000100") == 0) // 
+    {
+      sprintf(flco_string, "pf:%c Flyde Micro - ", pf);
+      ll = 0LL;
+      j = 0;
+      for(i = 0; i < 64; i++)
+        {
+          ll <<= 1;
+          ll |= (payload[i] == '1')?1:0;
+        }
+      for(i = 64; i < 80; i++)
+        {
+          j <<= 1;
+          j |= (payload[i] == '1')?1:0;
+        }
+      sprintf(tmpStr, "flco:%s fid:%s payload:0x%016llX%04X", flco, fid, ll, j);
+      strcat(flco_string, tmpStr);
+    }
+  else if (strcmp (fid, "00000101") == 0) // 
+    {
+      sprintf(flco_string, "pf:%c PROD-EL SPA - ", pf);
+      ll = 0LL;
+      j = 0;
+      for(i = 0; i < 64; i++)
+        {
+          ll <<= 1;
+          ll |= (payload[i] == '1')?1:0;
+        }
+      for(i = 64; i < 80; i++)
+        {
+          j <<= 1;
+          j |= (payload[i] == '1')?1:0;
+        }
+      sprintf(tmpStr, "flco:%s fid:%s payload:0x%016llX%04X", flco, fid, ll, j);
+      strcat(flco_string, tmpStr);
+    }
+  else if (strcmp (fid, "00000110") == 0) // 
+    {
+      sprintf(flco_string, "pf:%c Motorola Connect+ - ", pf);
+      ll = 0LL;
+      j = 0;
+      for(i = 0; i < 64; i++)
+        {
+          ll <<= 1;
+          ll |= (payload[i] == '1')?1:0;
+        }
+      for(i = 64; i < 80; i++)
+        {
+          j <<= 1;
+          j |= (payload[i] == '1')?1:0;
+        }
+      sprintf(tmpStr, "flco:%s fid:%s payload:0x%016llX%04X", flco, fid, ll, j);
+      strcat(flco_string, tmpStr);
+    }
+  else if (strcmp (fid, "00000111") == 0) // 
+    {
+      sprintf(flco_string, "pf:%c RADIODATA GmbH - ", pf);
+      ll = 0LL;
+      j = 0;
+      for(i = 0; i < 64; i++)
+        {
+          ll <<= 1;
+          ll |= (payload[i] == '1')?1:0;
+        }
+      for(i = 64; i < 80; i++)
+        {
+          j <<= 1;
+          j |= (payload[i] == '1')?1:0;
+        }
+      sprintf(tmpStr, "flco:%s fid:%s payload:0x%016llX%04X", flco, fid, ll, j);
+      strcat(flco_string, tmpStr);
+    }
+  else if (strcmp (fid, "00001000") == 0) // 
+    {
+      sprintf(flco_string, "pf:%c Hyteria - ", pf);
+      ll = 0LL;
+      j = 0;
+      for(i = 0; i < 64; i++)
+        {
+          ll <<= 1;
+          ll |= (payload[i] == '1')?1:0;
+        }
+      for(i = 64; i < 80; i++)
+        {
+          j <<= 1;
+          j |= (payload[i] == '1')?1:0;
+        }
+      sprintf(tmpStr, "flco:%s fid:%s payload:0x%016llX%04X", flco, fid, ll, j);
+      strcat(flco_string, tmpStr);
+    }
+  else if (strcmp (fid, "00010000") == 0) // Mototurbo Capacity+
+    {
+      sprintf(flco_string, "pf:%c Motorola Capacity+ - ", pf);
+      if (strcmp (flco, "000100") == 0)
+        {
+          strcat(flco_string, "Group Voice ");
 
 		  l = 0;
 		  for(i = 0; i < 24; i++)
@@ -139,17 +276,41 @@ void processFlco( char pf, char flco[7], char fid[9], char payload[97] )
 		  }
 		  sprintf(tmpStr, "RadioId:%ld ", l);
 		  strcat(flco_string, tmpStr);
-          }
+        }
 	  else
-	  {
-		ll = 0;
-		for(i = 0; i < 56; i++)
-	        {
-		    ll <<= 1;
-		    ll |= (payload[i] == '1')?1:0;
-		}
-		sprintf(flco_string, "pf:%c flco:%s fid:%s payload:0x%014llX", pf, flco, fid, ll);
-	  }
+	    {
+          ll = 0LL;
+          j = 0;
+          for(i = 0; i < 64; i++)
+            {
+              ll <<= 1;
+              ll |= (payload[i] == '1')?1:0;
+            }
+          for(i = 64; i < 80; i++)
+            {
+              j <<= 1;
+              j |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "flco:%s fid:%s payload:0x%016llX%04X", flco, fid, ll, j);
+          strcat(flco_string, tmpStr);
+        }
+    }
+  else
+    {
+      ll = 0LL;
+      j = 0;
+      for(i = 0; i < 64; i++)
+        {
+          ll <<= 1;
+          ll |= (payload[i] == '1')?1:0;
+        }
+      for(i = 64; i < 80; i++)
+        {
+          j <<= 1;
+          j |= (payload[i] == '1')?1:0;
+        }
+      sprintf(flco_string, "pf:%c flco:%s fid:%s payload:0x%016llX%04X", pf, flco, fid, ll, j);
+    }
 	flco_str_valid = 1;
 }
 char *getFlcoString()

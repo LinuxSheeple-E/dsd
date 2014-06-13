@@ -490,11 +490,11 @@ unsigned char getCRC8()
 void doCRC8(char bit)
 {
    char shiftFlag = 0;
-   if(cCRC8 & 0x01)
+   if(cCRC8 & 0x80)
      shiftFlag = 1;
-   cCRC8 >>= 1;
+   cCRC8 <<= 1;
    if (bit ^ shiftFlag)
-     cCRC8 ^= 0xe0;
+     cCRC8 ^= 0x07;
 }
 // CRC-16
 
@@ -509,12 +509,10 @@ unsigned short getCRC16()
 }
 void doCRC16(char bit)
 {
-   char shiftFlag = 0, bitFlag = 0;
+   char shiftFlag = 0;
    if(cCRC16 & 0x8000)
      shiftFlag = 1;
-   if(bit)
-     bitFlag = 1;
    cCRC16 <<= 1;
-    if (shiftFlag ^ bitFlag)
+    if (shiftFlag ^ bit)
      cCRC16 ^= 0x1021;
 }

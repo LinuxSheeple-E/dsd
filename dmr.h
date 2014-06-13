@@ -25,6 +25,11 @@ void processEmb (dsd_opts * opts, dsd_state * state, char syncdata[25]);
 // DMR FLCO
 void processFlco( char pf, char flco[7], char fid[9], char payload[97]);
 char *getFlcoString();
+// DMR CSBK
+void processCsbk( char lb, char pf, char csbk[7], char fid[9], char payload[97]);
+char *getCsbkString();
+// DMR Info field
+int processBPTC(dsd_opts * opts, dsd_state * state, char infodata[197], char payload[97]);
 // DMR Error Correction
 long doGolay208(char bitarray[20]);
 int doHamming743(char bitarray[7]);
