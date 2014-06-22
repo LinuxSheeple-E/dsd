@@ -102,14 +102,14 @@ void processSlco(short opcode, long data)
       sprintf(slco_string,"Tier 3 Trunk Sys_Params %06lX", data);
       break;
     case 9: // MotoTrbo Trunking SLCO
-      sprintf(slco_string,"Mototrbo Connect+ Net:%ld Site:%ld Traffic Ch", (data >> 12) & 0xfff, (data >> 4) & 0xff);
+      sprintf(slco_string,"Motorola Connect+ Net:%ld Site:%ld Traffic Ch", (data >> 12) & 0xfff, (data >> 4) & 0xff);
       break;
     case 10: // MotoTrbo Trunking SLCO
-      sprintf(slco_string,"Mototrbo Connect+ Net:%ld Site:%ld Control Ch", (data >> 12) & 0xfff, (data >> 4) & 0xff);
+      sprintf(slco_string,"Motorola Connect+ Net:%ld Site:%ld Control Ch", (data >> 12) & 0xfff, (data >> 4) & 0xff);
       break;
     case 15:
       if(((data >> 16) & 0xffff) == 0x10) // Motorola
-	sprintf(slco_string,"Mototrbo Capacity+ Op:%ld RestCh:%ld Rsrvd:%ld", (data >> 14) & 0x03, (data >> 8) & 0x1f, data & 0xff);
+	sprintf(slco_string,"Motorola Capacity+ Op:%ld RestCh:%ld Rsrvd:%ld", (data >> 14) & 0x03, (data >> 8) & 0x1f, data & 0xff);
       else
 	sprintf(slco_string,"%d %06lX", opcode, data);
 	break;
