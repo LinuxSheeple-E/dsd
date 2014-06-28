@@ -99,7 +99,22 @@ void processSlco(short opcode, long data)
 	}
       break;
     case 2: // Trunking SLCO
-      sprintf(slco_string,"Tier 3 Trunk Sys_Params %06lX", data);
+      //sprintf(slco_string,"Tier 3 (Trunked) Sys_Params %06lX", data);
+      switch((data >> 22) & 0x3)
+        {
+        case 0: // Tiny Model
+            sprintf(slco_string,"Tier 3 (Trunked) Sys_Params TN:%ld TS:%ld %s SlotCount: %03ld", (data >> 13) & 0x1ff ,(data >> 10) & 0x7 ,(data & 0x200)?"Reg":"   ", data & 0x1ff);
+          break;
+        case 1: // Small Model
+            sprintf(slco_string,"Tier 3 (Trunked) Sys_Params SN:%ld SS:%ld %s SlotCount: %03ld", (data >> 15) & 0x7f ,(data >> 10) & 0x1f ,(data & 0x200)?"Reg":"   ", data & 0x1ff);
+          break;
+        case 2: // Large Model
+            sprintf(slco_string,"Tier 3 (Trunked) Sys_Params LN:%ld LS:%ld %s SlotCount: %03ld", (data >> 18) & 0xf ,(data >> 10) & 0xff ,(data & 0x200)?"Reg":"   ", data & 0x1ff);
+          break;
+        default: // Huge Model
+            sprintf(slco_string,"Tier 3 (Trunked) Sys_Params HN:%ld HS:%ld %s SlotCount: %03ld", (data >> 20) & 0x3 ,(data >> 10) & 0x3ff ,(data & 0x200)?"Reg":"   ", data & 0x1ff);
+          break;
+        }
       break;
     case 9: // MotoTrbo Trunking SLCO
       sprintf(slco_string,"Motorola Connect+ Net:%ld Site:%ld Traffic Ch", (data >> 12) & 0xfff, (data >> 4) & 0xff);

@@ -44,5 +44,7 @@ void doCRC8(char bit);
 void initCRC16();
 unsigned short getCRC16();
 void doCRC16(char bit);
+void initRS1294();
+int doRS1294(char bitarray[97]);
 #endif // DMR_H
  

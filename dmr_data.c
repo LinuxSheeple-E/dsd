@@ -188,23 +188,32 @@ processDMRdata (dsd_opts * opts, dsd_state * state)
 	  sprintf (state->fsubtype, " VOICE Header ");
       if(processBPTC(opts, state, infodata, payload) == 0)
       {
-        pf = payload[0] + 48;
-        for (i = 0; i < 6; i++)
+        initRS1294();
+        char rs_mask[24] = {1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0};
+        for (i = 0; i < 24; i++)
         {
-          flco[i] = payload[2+i] + 48;
+          payload[72+i] ^= rs_mask[i];
         }
-        flco[6] = '\0';
-        for (i = 0; i < 8; i++)
+        if(doRS1294(payload) == 0)
         {
-          fid[i] = payload[8+i] + 48;
+          pf = payload[0] + 48;
+          for (i = 0; i < 6; i++)
+          {
+            flco[i] = payload[2+i] + 48;
+          }
+          flco[6] = '\0';
+          for (i = 0; i < 8; i++)
+          {
+            fid[i] = payload[8+i] + 48;
+          }
+          fid[8] = '\0';
+          for (i = 0; i < 56; i++)
+          {
+            payload[i] = payload[16+i] + 48;
+          }
+          payload[56] = '\0';
+          processFlco(pf, flco, fid, payload );
         }
-        fid[8] = '\0';
-        for (i = 0; i < 56; i++)
-        {
-          payload[i] = payload[16+i] + 48;
-        }
-        payload[56] = '\0';
-        processFlco(pf, flco, fid, payload );
       }
       
 	}
@@ -213,23 +222,32 @@ processDMRdata (dsd_opts * opts, dsd_state * state)
 	  sprintf (state->fsubtype, " TLC          ");
       if(processBPTC(opts, state, infodata, payload) == 0)
       {
-        pf = payload[0] + 48;
-        for (i = 0; i < 6; i++)
+        initRS1294();
+        char rs_mask[24] = {1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1};
+        for (i = 0; i < 24; i++)
         {
-          flco[i] = payload[2+i] + 48;
+          payload[72+i] ^= rs_mask[i];
         }
-        flco[6] = '\0';
-        for (i = 0; i < 8; i++)
+        if(doRS1294(payload) == 0)
         {
-          fid[i] = payload[8+i] + 48;
+          pf = payload[0] + 48;
+          for (i = 0; i < 6; i++)
+          {
+            flco[i] = payload[2+i] + 48;
+          }
+          flco[6] = '\0';
+          for (i = 0; i < 8; i++)
+          {
+            fid[i] = payload[8+i] + 48;
+          }
+          fid[8] = '\0';
+          for (i = 0; i < 56; i++)
+          {
+            payload[i] = payload[16+i] + 48;
+          }
+          payload[56] = '\0';
+          processFlco(pf, flco, fid, payload );
         }
-        fid[8] = '\0';
-        for (i = 0; i < 56; i++)
-        {
-          payload[i] = payload[16+i] + 48;
-        }
-        payload[56] = '\0';
-        processFlco(pf, flco, fid, payload );
       }
 	}
       else if (strcmp (bursttype, "0011") == 0)
