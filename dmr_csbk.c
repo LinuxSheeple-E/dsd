@@ -34,94 +34,502 @@ void processCsbk( char lb, char pf, char csbk[7], char fid[9], char payload[97] 
       if (strcmp (csbk, "000100") == 0)
         {
           strcat(csbk_string, "Unit-Unit Voice Request ");
+          ll = 0;
+          for(i = 0; i < 64; i++)
+            {
+              ll <<= 1;
+              ll |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "payload:0x%016llX",ll);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "000101") == 0)
         {
           strcat(csbk_string, "Unit-Unit Answer Response ");
+          ll = 0;
+          for(i = 0; i < 64; i++)
+            {
+              ll <<= 1;
+              ll |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "payload:0x%016llX",ll);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "000111") == 0)
         {
           strcat(csbk_string, "Channel Timing ");
+          ll = 0;
+          for(i = 0; i < 64; i++)
+            {
+              ll <<= 1;
+              ll |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "payload:0x%016llX",ll);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "011001") == 0)
         {
           strcat(csbk_string, "Aloha ");
+          sprintf(tmpStr, " %s %s ", (payload[6] == '1')?"Infill":"   ", (payload[7] == '1')?"Netwkd":"   ");
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 24; i < 40; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          switch((l >> 14) & 0x3)
+            {
+            case 0: // Tiny Model
+              sprintf(tmpStr,"Tiny Net:%ld Site:%ld Par: %ld %s ", (l >> 5) & 0x1ff, (l >> 2) & 0x7, l & 0x3, (payload[19] == '1')?"Reg":"   ");
+              break;
+            case 1: // Small Model
+              sprintf(tmpStr,"Small Net:%ld Site:%ld Par: %ld %s ", (l >> 7) & 0x7f ,(l >> 2) & 0x1f , l & 0x3, (payload[19] == '1')?"Reg":"   ");
+              break;
+            case 2: // Large Model
+              sprintf(tmpStr,"Large Net:%ld Site:%ld Par: %ld %s ", (l >> 10) & 0x0f, (l >> 2) & 0xff, l & 0x3, (payload[19] == '1')?"Reg":"   ");
+              break;
+            default: // Huge Model
+              sprintf(tmpStr,"Huge Net:%ld Site:%ld Par: %ld %s ", (l >> 12) & 0x03, (l >> 2) & 0x3ff, l & 0x3, (payload[19] == '1')?"Reg":"   ");
+              break;
+            }
+          // sprintf(tmpStr, "%s SysId:0x%04lX ", (payload[19] == '1')?"Reg":"   ", l);
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 40; i < 64; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "MSId:0x%06lX ", l);
+          strcat(csbk_string, tmpStr);
+
         }
       else if (strcmp (csbk, "011010") == 0)
         {
           strcat(csbk_string, "UDT Download Header ");
+          ll = 0;
+          for(i = 0; i < 64; i++)
+            {
+              ll <<= 1;
+              ll |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "payload:0x%016llX",ll);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "011011") == 0)
         {
           strcat(csbk_string, "UDT Upload Header ");
+          ll = 0;
+          for(i = 0; i < 64; i++)
+            {
+              ll <<= 1;
+              ll |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "payload:0x%016llX",ll);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "011100") == 0)
         {
           strcat(csbk_string, "Ahoy ");
+          ll = 0;
+          for(i = 0; i < 64; i++)
+            {
+              ll <<= 1;
+              ll |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "payload:0x%016llX",ll);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "011110") == 0)
         {
           strcat(csbk_string, "Ackvitation ");
+          ll = 0;
+          for(i = 0; i < 64; i++)
+            {
+              ll <<= 1;
+              ll |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "payload:0x%016llX",ll);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "011111") == 0)
         {
           strcat(csbk_string, "Random Access Service Request ");
+          ll = 0;
+          for(i = 0; i < 64; i++)
+            {
+              ll <<= 1;
+              ll |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "payload:0x%016llX",ll);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "100000") == 0)
         {
           strcat(csbk_string, "Ack Outbound TSCC ");
+          ll = 0;
+          for(i = 0; i < 64; i++)
+            {
+              ll <<= 1;
+              ll |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "payload:0x%016llX",ll);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "100001") == 0)
         {
           strcat(csbk_string, "Ack Inbound TSCC ");
+          ll = 0;
+          for(i = 0; i < 64; i++)
+            {
+              ll <<= 1;
+              ll |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "payload:0x%016llX",ll);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "100010") == 0)
         {
           strcat(csbk_string, "Ack Outbound Payload ");
+          ll = 0;
+          for(i = 0; i < 64; i++)
+            {
+              ll <<= 1;
+              ll |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "payload:0x%016llX",ll);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "100011") == 0)
         {
         strcat(csbk_string, "Ack Inbound Payload  ");
+          ll = 0;
+          for(i = 0; i < 64; i++)
+            {
+              ll <<= 1;
+              ll |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "payload:0x%016llX",ll);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "100110") == 0)
         {
         strcat(csbk_string, "Nack Response ");
+          ll = 0;
+          for(i = 0; i < 64; i++)
+            {
+              ll <<= 1;
+              ll |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "payload:0x%016llX",ll);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "101000") == 0)
         {
         strcat(csbk_string, "C Bcast ");
+          l = 0;
+          for(i = 24; i < 40; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          switch((l >> 14) & 0x3)
+            {
+            case 0: // Tiny Model
+              sprintf(tmpStr,"Tiny Net:%ld Site:%ld Par:%ld %s ", (l >> 5) & 0x1ff, (l >> 2) & 0x7, l & 0x3, (payload[19] == '1')?"Reg":"   ");
+              break;
+            case 1: // Small Model
+              sprintf(tmpStr,"Small Net:%ld Site:%ld Par:%ld %s ", (l >> 7) & 0x7f ,(l >> 2) & 0x1f , l & 0x3, (payload[19] == '1')?"Reg":"   ");
+              break;
+            case 2: // Large Model
+              sprintf(tmpStr,"Large Net:%ld Site:%ld Par:%ld %s ", (l >> 10) & 0x0f, (l >> 2) & 0xff, l & 0x3, (payload[19] == '1')?"Reg":"   ");
+              break;
+            default: // Huge Model
+              sprintf(tmpStr,"Huge Net:%ld Site:%ld Par:%ld %s ", (l >> 12) & 0x03, (l >> 2) & 0x3ff, l & 0x3, (payload[19] == '1')?"Reg":"   ");
+              break;
+            }
+           strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 0; i < 5; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          switch(l)
+            {
+            case 0:
+              sprintf(tmpStr, "Ann-WD_TSCC ");
+              break;
+            case 1:
+              sprintf(tmpStr, "CallTimer_Parms ");
+              break;
+            case 2:
+              sprintf(tmpStr, "Vote Now ");
+              break;
+            case 3:
+              sprintf(tmpStr, "Local Time ");
+              break;
+            case 4:
+              sprintf(tmpStr, "MassReg ");
+              break;
+            case 5:
+              sprintf(tmpStr, "Chan_Freq ");
+              break;
+            case 6:
+              sprintf(tmpStr, "Adjacent Site ");
+              break;
+            default:
+               sprintf(tmpStr, "Unknwn: %ld ", l);
+              break;
+             
+          }
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 5; i < 19; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "Parm1:0x%04lX ", l);
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 40; i < 64; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "Parm2:0x%06lX ", l);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "101010") == 0)
         {
         strcat(csbk_string, "Maintenance ");
+          ll = 0;
+          for(i = 0; i < 64; i++)
+            {
+              ll <<= 1;
+              ll |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "payload:0x%016llX",ll);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "101110") == 0)
         {
           strcat(csbk_string, "Clear ");
+          l = 0;
+          for(i = 0; i < 12; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "ToChan:%ld ", l);
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 16; i < 40; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          if(payload[15] == '1')
+            sprintf(tmpStr, "GroupId:%ld ", l);
+          else
+            sprintf(tmpStr, "DestRId:%ld ", l);
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 40; i < 64; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "SrcRId:%ld ", l);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "101111") == 0)
         {
           strcat(csbk_string, "Protect ");
+          l = 0;
+          for(i = 12; i < 15; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          switch(l)
+            {
+            case 0:
+              sprintf(tmpStr, "Disable PTT ");
+              break;
+            case 1:
+              sprintf(tmpStr, "Enable PTT ");
+              break;
+            case 2:
+              sprintf(tmpStr, "Clear untargeted ");
+              break;
+            default:
+               sprintf(tmpStr, "Unknwn: %ld ", l);
+              break;
+             
+          }
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 16; i < 40; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          if(payload[15] == '1')
+            sprintf(tmpStr, "GroupId:%ld ", l);
+          else
+            sprintf(tmpStr, "DestRId:%ld ", l);
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 40; i < 64; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "SrcRId:%ld ", l);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "110000") == 0)
         {
           strcat(csbk_string, "Private Voice Grant ");
+          l = 0;
+          for(i = 0; i < 12; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "Chan:%ld Slot:%d %s %s", l, (payload[12] == '1')?1:0, (payload[13] == '1')?"OVCM":" ", (payload[14] == '1')?"EMERGENCY":" ");
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 16; i < 40; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "DestRId:%ld ", l);
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 40; i < 64; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "SrcRId:%ld ", l);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "110001") == 0)
         {
           strcat(csbk_string, "Talkgroup Voice Grant ");
+          l = 0;
+          for(i = 0; i < 12; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "Chan:%ld Slot:%d %s %s", l, (payload[12] == '1')?1:0, (payload[13] == '1')?"OVCM":" ", (payload[14] == '1')?"EMERGENCY":" ");
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 16; i < 40; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "GroupId:%ld ", l);
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 40; i < 64; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "SrcRId:%ld ", l);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "110010") == 0)
         {
-          strcat(csbk_string, "Private Broadcast Voice Grant ");
+          strcat(csbk_string, "Broadcast Talkgroup Voice Grant ");
+          l = 0;
+          for(i = 0; i < 12; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "Chan:%ld Slot:%d %s %s", l, (payload[12] == '1')?1:0, (payload[13] == '1')?"OVCM":" ", (payload[14] == '1')?"EMERGENCY":" ");
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 16; i < 40; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "GroupId:%ld ", l);
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 40; i < 64; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "SrcRId:%ld ", l);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "110011") == 0)
         {
-          strcat(csbk_string, "Private Data Grant ");
+          strcat(csbk_string, "Private Data Grant/Payload Channel Grant ");
+          l = 0;
+          for(i = 0; i < 12; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "Chan:%ld Slot:%d %s %s", l, (payload[12] == '1')?1:0, (payload[13] == '1')?"OVCM":" ", (payload[14] == '1')?"EMERGENCY":" ");
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 16; i < 40; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "DestId:%ld ", l);
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 40; i < 64; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "SrcRId:%ld ", l);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "110100") == 0)
         {
           strcat(csbk_string, "Talkgroup Data Grant ");
+          l = 0;
+          for(i = 0; i < 12; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "Chan:%ld Slot:%d %s %s", l, (payload[12] == '1')?1:0, (payload[13] == '1')?"OVCM":" ", (payload[14] == '1')?"EMERGENCY":" ");
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 16; i < 40; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "GroupId:%ld ", l);
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 40; i < 64; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "SrcRId:%ld ", l);
+          strcat(csbk_string, tmpStr);
         }
       else if (strcmp (csbk, "111000") == 0)
         {
@@ -366,17 +774,143 @@ void processCsbk( char lb, char pf, char csbk[7], char fid[9], char payload[97] 
       sprintf(tmpStr, "csbk:%s fid:%s payload:0x%016llX",csbk, fid, ll);
       strcat(csbk_string, tmpStr);
     }
-  else if(strcmp (fid, "00000100") == 0)
+  else if(strcmp (fid, "00001000") == 0)
     {
-      sprintf(csbk_string, "lb:%c pf:%c Hyteria (4) - ", lb, pf);
-      ll = 0;
-      for(i = 0; i < 64; i++)
+      sprintf(csbk_string, "lb:%c pf:%c Hyteria (8) - ", lb, pf);
+      if (strcmp (csbk, "101000") == 0)
         {
-          ll <<= 1;
-          ll |= (payload[i] == '1')?1:0;
+        strcat(csbk_string, "C Bcast ");
+          l = 0;
+          for(i = 24; i < 40; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          switch((l >> 14) & 0x3)
+            {
+            case 0: // Tiny Model
+              sprintf(tmpStr,"Tiny Net:%ld Site:%ld Par:%ld %s ", (l >> 5) & 0x1ff, (l >> 2) & 0x7, l & 0x3, (payload[19] == '1')?"Reg":"   ");
+              break;
+            case 1: // Small Model
+              sprintf(tmpStr,"Small Net:%ld Site:%ld Par:%ld %s ", (l >> 7) & 0x7f ,(l >> 2) & 0x1f , l & 0x3, (payload[19] == '1')?"Reg":"   ");
+              break;
+            case 2: // Large Model
+              sprintf(tmpStr,"Large Net:%ld Site:%ld Par:%ld %s ", (l >> 10) & 0x0f, (l >> 2) & 0xff, l & 0x3, (payload[19] == '1')?"Reg":"   ");
+              break;
+            default: // Huge Model
+              sprintf(tmpStr,"Huge Net:%ld Site:%ld Par:%ld %s ", (l >> 12) & 0x03, (l >> 2) & 0x3ff, l & 0x3, (payload[19] == '1')?"Reg":"   ");
+              break;
+            }
+           strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 0; i < 5; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+/*          switch(l)
+            {
+            case 0:
+              sprintf(tmpStr, "Ann-WD_TSCC ");
+              break;
+            case 1:
+              sprintf(tmpStr, "CallTimer_Parms ");
+              break;
+            case 2:
+              sprintf(tmpStr, "Vote Now ");
+              break;
+            case 3:
+              sprintf(tmpStr, "Local Time ");
+              break;
+            case 4:
+              sprintf(tmpStr, "MassReg ");
+              break;
+            case 5:
+              sprintf(tmpStr, "Chan_Freq ");
+              break;
+            case 6:
+              sprintf(tmpStr, "Adjacent Site ");
+              break;
+            default: */
+               sprintf(tmpStr, "Unknwn: %ld ", l);
+/*              break;
+             
+          } */
+          strcat(csbk_string, tmpStr);
+          l = 0;
+           for(i = 5; i < 19; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "Parm1:0x%04lX ", l);
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 40; i < 64; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "Parm2:0x%06lX ", l);
+          strcat(csbk_string, tmpStr);
         }
-      sprintf(tmpStr, "csbk:%s fid:%s payload:0x%016llX",csbk, fid, ll);
-      strcat(csbk_string, tmpStr);
+      else if (strcmp (csbk, "101111") == 0)
+        {
+          strcat(csbk_string, "Protect ");
+          l = 0;
+          for(i = 12; i < 15; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          switch(l)
+            {
+            case 0:
+              sprintf(tmpStr, "Disable PTT ");
+              break;
+            case 1:
+              sprintf(tmpStr, "Enable PTT ");
+              break;
+            case 2:
+              sprintf(tmpStr, "Clear untargeted ");
+              break;
+            default:
+               sprintf(tmpStr, "Unknwn: %ld ", l);
+              break;
+             
+          }
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 16; i < 40; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          if(payload[15] == '1')
+            sprintf(tmpStr, "GroupId:%ld ", l);
+          else
+            sprintf(tmpStr, "DestRId:%ld ", l);
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 40; i < 64; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "SrcRId:%ld ", l);
+          strcat(csbk_string, tmpStr);
+        }
+      else
+        {
+          ll = 0;
+          for(i = 0; i < 64; i++)
+            {
+              ll <<= 1;
+              ll |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "csbk:%s fid:%s payload:0x%016llX",csbk, fid, ll);
+          strcat(csbk_string, tmpStr);
+        }
     }
   else if(strcmp (fid, "00010000") == 0) // Mototrbo
     {
@@ -515,14 +1049,94 @@ void processCsbk( char lb, char pf, char csbk[7], char fid[9], char payload[97] 
   else if(strcmp (fid, "01101000") == 0)
     {
       sprintf(csbk_string, "lb:%c pf:%c Hyteria (104) - ", lb, pf);
-      ll = 0;
-      for(i = 0; i < 64; i++)
+      if (strcmp (csbk, "101000") == 0)
         {
-          ll <<= 1;
-          ll |= (payload[i] == '1')?1:0;
+        strcat(csbk_string, "C Bcast ");
+          l = 0;
+          for(i = 24; i < 40; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          switch((l >> 14) & 0x3)
+            {
+            case 0: // Tiny Model
+              sprintf(tmpStr,"Tiny Net:%ld Site:%ld Par:%ld %s ", (l >> 5) & 0x1ff, (l >> 2) & 0x7, l & 0x3, (payload[19] == '1')?"Reg":"   ");
+              break;
+            case 1: // Small Model
+              sprintf(tmpStr,"Small Net:%ld Site:%ld Par:%ld %s ", (l >> 7) & 0x7f ,(l >> 2) & 0x1f , l & 0x3, (payload[19] == '1')?"Reg":"   ");
+              break;
+            case 2: // Large Model
+              sprintf(tmpStr,"Large Net:%ld Site:%ld Par:%ld %s ", (l >> 10) & 0x0f, (l >> 2) & 0xff, l & 0x3, (payload[19] == '1')?"Reg":"   ");
+              break;
+            default: // Huge Model
+              sprintf(tmpStr,"Huge Net:%ld Site:%ld Par:%ld %s ", (l >> 12) & 0x03, (l >> 2) & 0x3ff, l & 0x3, (payload[19] == '1')?"Reg":"   ");
+              break;
+            }
+           strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 0; i < 5; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+/*          switch(l)
+            {
+            case 0:
+              sprintf(tmpStr, "Ann-WD_TSCC ");
+              break;
+            case 1:
+              sprintf(tmpStr, "CallTimer_Parms ");
+              break;
+            case 2:
+              sprintf(tmpStr, "Vote Now ");
+              break;
+            case 3:
+              sprintf(tmpStr, "Local Time ");
+              break;
+            case 4:
+              sprintf(tmpStr, "MassReg ");
+              break;
+            case 5:
+              sprintf(tmpStr, "Chan_Freq ");
+              break;
+            case 6:
+              sprintf(tmpStr, "Adjacent Site ");
+              break;
+            default: */
+               sprintf(tmpStr, "Unknwn: %ld ", l);
+/*              break;
+             
+          } */
+          strcat(csbk_string, tmpStr);
+          l = 0;
+           for(i = 5; i < 19; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "Parm1:0x%04lX ", l);
+          strcat(csbk_string, tmpStr);
+          l = 0;
+          for(i = 40; i < 64; i++)
+            {
+              l <<= 1;
+              l |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "Parm2:0x%06lX ", l);
+          strcat(csbk_string, tmpStr);
         }
-      sprintf(tmpStr, "csbk:%s fid:%s payload:0x%016llX",csbk, fid, ll);
-      strcat(csbk_string, tmpStr);
+      else
+        {
+          ll = 0;
+          for(i = 0; i < 64; i++)
+            {
+              ll <<= 1;
+              ll |= (payload[i] == '1')?1:0;
+            }
+          sprintf(tmpStr, "csbk:%s fid:%s payload:0x%016llX",csbk, fid, ll);
+          strcat(csbk_string, tmpStr);
+        }
     }
   else if(strcmp (fid, "01110111") == 0)
     {

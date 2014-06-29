@@ -35,6 +35,7 @@ processDMRvoice (dsd_opts * opts, dsd_state * state)
   char cachdata[13];
   int mutecurrentslot;
   int msMode;
+  int invertedSync;
 
 #ifdef DMR_DUMP
   int k;
@@ -44,6 +45,7 @@ processDMRvoice (dsd_opts * opts, dsd_state * state)
 
   mutecurrentslot = 0;
   msMode = 0;
+  invertedSync = 0;
 
   dibit_p = state->dibit_buf_p - 144;
   for (j = 0; j < 6; j++)
@@ -181,7 +183,10 @@ processDMRvoice (dsd_opts * opts, dsd_state * state)
       syncdata[24] = 0;
       if(j > 0) // Non-Sync part of the superframe
       {
-	processEmb (opts, state, syncdata);
+        processEmb (opts, state, syncdata);
+        if ((strcmp (sync, DMR_BS_VOICE_SYNC) == 0) || (strcmp (sync, DMR_MS_VOICE_SYNC) == 0))
+          invertedSync++;
+       
       }
 
       if ((strcmp (sync, DMR_BS_DATA_SYNC) == 0) || (strcmp (sync, DMR_MS_DATA_SYNC) == 0))
@@ -378,5 +383,7 @@ processDMRvoice (dsd_opts * opts, dsd_state * state)
 	  printf("  EMB: %s \n", cptr);
 	}
     }
+  if(invertedSync >= 2) // Things are inverted
+    opts->inverted_dmr ^= 1;
 
 }

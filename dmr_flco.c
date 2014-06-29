@@ -221,7 +221,7 @@ void processFlco( char pf, char flco[7], char fid[9], char payload[97] )
     }
   else if (strcmp (fid, "00001000") == 0)
     {
-      sprintf(flco_string, "pf:%c Hyteria (4) - ", pf);
+      sprintf(flco_string, "pf:%c Hyteria (8) - ", pf);
       ll = 0LL;
       j = 0;
       for(i = 0; i < 64; i++)

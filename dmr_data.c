@@ -182,6 +182,35 @@ processDMRdata (dsd_opts * opts, dsd_state * state)
       if (strcmp (bursttype, "0000") == 0)
 	{
 	  sprintf (state->fsubtype, " PI Header    ");
+      if(processBPTC(opts, state, infodata, payload) == 0)
+      {
+        initCRC16();
+        char crc_mask[16] = {0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1};
+        for (i = 0; i < 16; i++)
+        {
+          payload[80+i] ^= crc_mask[i];
+        }
+        for(i = 0; i < 96; i++)
+          doCRC16(payload[i]);
+        if(getCRC16() == 0x1d0f)
+        {
+          for (i = 0, j = 0; i < 80; i++)
+          {
+            if(i%8 == 0)
+            {
+              l = 0;
+            }
+            l <<= 1;
+            l |= payload[i];
+            if(i%8 == 7)
+            {
+              sprintf (datastr+j,"%02lX  ", l);
+              j += 3;
+            }
+          }
+          datastr[j]= '\0';
+        }
+      }
 	}
       else if (strcmp (bursttype, "0001") == 0)
 	{
@@ -265,7 +294,7 @@ processDMRdata (dsd_opts * opts, dsd_state * state)
           doCRC16(payload[i]);
         if(getCRC16() == 0x1d0f)
         {
-          lb = payload[0] + 48;
+          lb = payload[0] + 48; // This should always be one, otherwise mbc would be used
         
           pf = payload[1] + 48;
           for (i = 0; i < 6; i++)
@@ -290,12 +319,45 @@ processDMRdata (dsd_opts * opts, dsd_state * state)
       else if (strcmp (bursttype, "0100") == 0)
 	{
 	  sprintf (state->fsubtype, " MBC Header   ");
-	}
-      else if (strcmp (bursttype, "0101") == 0)
+      if(processBPTC(opts, state, infodata, payload) == 0)
+      {
+        initCRC16();
+        char crc_mask[16] = {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
+        for (i = 0; i < 16; i++)
+        {
+          payload[80+i] ^= crc_mask[i];
+        }
+        for(i = 0; i < 96; i++)
+          doCRC16(payload[i]);
+        if(getCRC16() == 0x1d0f)
+        {
+          lb = payload[0] + 48; // This should always be zero, otherwise csbk would be used
+        
+          pf = payload[1] + 48;
+          for (i = 0; i < 6; i++)
+          {
+            csbk[i] = payload[2+i] + 48;
+          }
+          csbk[6] = '\0';
+          for (i = 0; i < 8; i++)
+          {
+            fid[i] = payload[8+i] + 48;
+          }
+          fid[8] = '\0';
+          for (i = 0; i < 80; i++)
+          {
+            payload[i] = payload[16+i] + 48;
+          }
+          payload[80] = '\0';
+          processCsbk(lb, pf, csbk, fid, payload );
+        }
+	  }
+    }
+    else if (strcmp (bursttype, "0101") == 0)
 	{
 	  sprintf (state->fsubtype, " MBC          ");
 	}
-      else if (strcmp (bursttype, "0110") == 0)
+    else if (strcmp (bursttype, "0110") == 0)
 	{
 	  sprintf (state->fsubtype, " DATA Header  ");
       if(processBPTC(opts, state, infodata, payload) == 0)
