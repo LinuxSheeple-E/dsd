@@ -7,6 +7,46 @@
 #include <windows.h>
 #endif
 
+/*******************************************************************/
+static void PrintSupportedSampleRates(
+ const PaStreamParameters *inputParameters,
+ const PaStreamParameters *outputParameters )
+ {
+ static double sampleRates[] = {
+ 8000.0, 44100.0, 48000.0, -1 /* negative terminated list */
+ };
+ int i, printCount;
+  PaError err;
+
+ printCount = 0;
+  for( i=0; sampleRates[i] > 0; i++ )
+  {
+  err = Pa_IsFormatSupported( inputParameters, outputParameters, sampleRates[i] );
+  if( err == paFormatIsSupported )
+  {
+  if( printCount == 0 )
+  {
+  printf( "\t%8.2f", sampleRates[i] );
+  printCount = 1;
+  }
+  else if( printCount == 4 )
+  {
+  printf( ",\n\t%8.2f", sampleRates[i] );
+  printCount = 1;
+  }
+  else
+  {
+  printf( ", %8.2f", sampleRates[i] );
+  ++printCount;
+  }
+  }
+  }
+  if( !printCount )
+  printf( "None\n" );
+  else
+  printf( "\n" );
+ }
+
 void printPortAudioDevices()
 {
     int     i, numDevices, defaultDisplayed;
@@ -80,7 +120,40 @@ void printPortAudioDevices()
         printf( "Max inputs = %d", deviceInfo->maxInputChannels  );
         printf( ", Max outputs = %d\n", deviceInfo->maxOutputChannels  );
         printf( "Default sample rate         = %8.2f\n", deviceInfo->defaultSampleRate );
+  /* poll for supported sample rates */
+  inputParameters.device = i;
+  inputParameters.channelCount = deviceInfo->maxInputChannels;
+  inputParameters.sampleFormat = paInt16;
+  inputParameters.suggestedLatency = 0; /* ignored by Pa_IsFormatSupported() */
+  inputParameters.hostApiSpecificStreamInfo = NULL;
+ 
+  outputParameters.device = i;
+  outputParameters.channelCount = deviceInfo->maxOutputChannels;
+  outputParameters.sampleFormat = paInt16;
+  outputParameters.suggestedLatency = 0; /* ignored by Pa_IsFormatSupported() */
+  outputParameters.hostApiSpecificStreamInfo = NULL;
+ 
+  if( inputParameters.channelCount > 0 )
+  {
+  printf("Supported sample rates\n for half-duplex 16 bit %d channel input = \n",
+  inputParameters.channelCount );
+  PrintSupportedSampleRates( &inputParameters, NULL );
+  }
+ 
+  if( outputParameters.channelCount > 0 )
+  {
+  printf("Supported sample rates\n for half-duplex 16 bit %d channel output = \n",
+  outputParameters.channelCount );
+  PrintSupportedSampleRates( NULL, &outputParameters );
+  }
+ 
+  if( inputParameters.channelCount > 0 && outputParameters.channelCount > 0 )
+  {
+  printf("Supported sample rates\n for full-duplex 16 bit %d channel input, %d channel output = \n",
+  inputParameters.channelCount, outputParameters.channelCount );
+  PrintSupportedSampleRates( &inputParameters, &outputParameters );
     }
+  }
 
     Pa_Terminate();
 
